@@ -2,34 +2,34 @@ module App where
 
 import Prelude
 
-import Data.Foldable as Foldable
+import Data.Nullable as Nullable
 import Effect.Class.Console as Console
-import Effect.Timer as Timer
+import Foreign.Hooks (MouseEvent(..))
+import Foreign.Hooks as Foreign.Hooks
 import React.Basic.DOM as R
-import React.Basic.DOM.Events as DOM.Events
 import React.Basic.Events as Events
-import React.Basic.Hooks (Component, (/\))
-import React.Basic.Hooks as React
+import React.Basic.Hooks (Component)
+import React.Basic.Hooks as Hooks
 
 mkApp :: Component Unit
 mkApp = do
-  React.component "App" \_ -> React.do
-    text /\ setText <- React.useState' ""
-    timer /\ setTimer <- React.useState 0
-    React.useEffect text do
-      handle <- Timer.setInterval 1_000 (setTimer (_ + 1))
-      pure (setTimer (\_ -> 0) *> Timer.clearInterval handle)
+  Hooks.component "App" \_ -> Hooks.do
+    ref <- Hooks.useRef Nullable.null
+
+    let
+      handleClickOutside = Events.handler_ (Console.log "Clicked outside")
+      handleClickInside = Events.handler_ (Console.log "Clicked inside")
+
+    Foreign.Hooks.useOnClickOutside ref handleClickOutside MouseDown
+
     pure
-      ( R.div_
-          [ R.input
-              { onChange:
-                  Events.handler DOM.Events.targetValue
-                    ( Foldable.traverse_ \value -> do
-                        Console.log value
-                        setText value
-                    )
-              , value: text
+      ( R.button
+          { onClick: handleClickInside
+          , ref
+          , style: R.css
+              { width: "200px"
+              , height: "200px"
+              , background: "cyan"
               }
-          , R.p_ [ R.text (show timer) ]
-          ]
+          }
       )
