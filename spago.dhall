@@ -13,6 +13,7 @@ to generate this file without the comments in this block.
 { name = "react-starter"
 , dependencies =
   [ "console"
+  , "debug"
   , "effect"
   , "exceptions"
   , "foldable-traversable"
